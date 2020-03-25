@@ -17,6 +17,22 @@ func fillRect(img *image.RGBA, col color.Color) {
 	}
 }
 
+func drawBounds(img *image.RGBA, col color.Color) {
+	rect := img.Rect
+
+	// 上下の枠
+	for h := 0; h < rect.Max.X; h++ {
+		img.Set(h, 0, col)
+		img.Set(h, rect.Max.Y-1, col)
+	}
+
+	// 左右の枠
+	for v := 0; v < rect.Max.Y; v++ {
+		img.Set(0, v, col)
+		img.Set(rect.Max.X-1, v, col)
+	}
+}
+
 func main() {
 	x := 0
 	y := 0
@@ -24,7 +40,8 @@ func main() {
 	height := 50
 
 	img := image.NewRGBA(image.Rect(x, y, width, height))
-	fillRect(img, color.RGBA{255, 0, 0, 0})
+	fillRect(img, color.RGBA{255, 255, 255, 0})
+	drawBounds(img, color.RGBA{255, 0, 0, 0})
 
 	file, _ := os.Create("sample.jpg")
 	defer file.Close()
