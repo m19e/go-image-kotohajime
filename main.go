@@ -1,9 +1,11 @@
 package main // import "gen"
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/jpeg"
+	_ "image/png"
 	"math"
 	"os"
 )
@@ -47,6 +49,22 @@ func (c *Circle) drawCircle(img *image.RGBA, col color.Color) {
 	}
 }
 
+func measure(name string) {
+	file, _ := os.Open(fmt.Sprintf("./assets/%s", name))
+	defer file.Close()
+
+	config, formatName, err := image.DecodeConfig(file)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(name)
+	fmt.Println(formatName)
+	// print Image size
+	fmt.Println(config.Width)
+	fmt.Println(config.Height)
+}
+
 func main() {
 	x := 0
 	y := 0
@@ -74,4 +92,7 @@ func main() {
 	if err := jpeg.Encode(file, img, &jpeg.Options{100}); err != nil {
 		panic(err)
 	}
+
+	measure("shibadog.jpg")
+	measure("goldeninu.jpg")
 }
