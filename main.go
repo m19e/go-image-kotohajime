@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/draw"
 	"image/jpeg"
-	_ "image/png"
+	"image/png"
 	"math"
 	"os"
 )
@@ -65,6 +66,40 @@ func measure(name string) {
 	fmt.Println(config.Height)
 }
 
+func combine(base string, layer string) {
+	bs, _ := os.Open(fmt.Sprintf("./assets/%s", base))
+	defer bs.Close()
+	lyr, _ := os.Open(fmt.Sprintf("./assets/%s", layer))
+	defer lyr.Close()
+
+	baseImage, _, err := image.Decode(bs)
+	if err != nil {
+		panic(err)
+	}
+
+	layerImage, _, err := image.Decode(lyr)
+	if err != nil {
+		panic(err)
+	}
+
+	outRect := image.Rectangle{image.Pt(0, 0), baseImage.Bounds().Size()}
+	out := image.NewRGBA(outRect)
+
+	// DRAW
+	// First, draw base image
+	baseRect := image.Rectangle{image.Pt(0, 0), baseImage.Bounds().Size()}
+	draw.Draw(out, baseRect, baseImage, image.Pt(0, 0), draw.Src)
+
+	// Next, draw layer image
+	layerRect := image.Rectangle{image.Pt(0, 0), layerImage.Bounds().Size()}
+	draw.Draw(out, layerRect, layerImage, image.Pt(0, 0), draw.Over)
+
+	outfile, _ := os.Create("out.png")
+	defer outfile.Close()
+	// write
+	png.Encode(outfile, out)
+}
+
 func main() {
 	x := 0
 	y := 0
@@ -95,4 +130,6 @@ func main() {
 
 	measure("shibadog.jpg")
 	measure("goldeninu.jpg")
+
+	combine("shibadog.jpg", "goldeninu.jpg")
 }
