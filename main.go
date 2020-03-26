@@ -100,6 +100,36 @@ func combine(base string, layer string) {
 	png.Encode(outfile, out)
 }
 
+func dyeGray(name string) {
+	file, _ := os.Open(fmt.Sprintf("./assets/%s", name))
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		panic(err)
+	}
+	bounds := img.Bounds()
+
+	// image for output
+	out := image.NewGray(bounds)
+
+	// dye gray
+	for v := bounds.Min.Y; v < bounds.Max.Y; v++ {
+		for h := bounds.Min.X; h < bounds.Max.X; h++ {
+			c := color.GrayModel.Convert(img.At(h, v))
+			gray, _ := c.(color.Gray)
+			out.Set(h, v, gray)
+		}
+	}
+
+	// file for writing
+	outfile, _ := os.Create("gray.png")
+	defer outfile.Close()
+
+	// WRITE
+	png.Encode(outfile, out)
+}
+
 func main() {
 	x := 0
 	y := 0
@@ -132,4 +162,6 @@ func main() {
 	measure("goldeninu.jpg")
 
 	combine("shibadog.jpg", "goldeninu.jpg")
+
+	dyeGray("shibadog.jpg")
 }
