@@ -130,6 +130,42 @@ func dyeGray(name string) {
 	png.Encode(outfile, out)
 }
 
+const threshold = 128
+
+func binarize(name string) {
+	file, _ := os.Open(fmt.Sprintf("./assets/%s", name))
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		panic(err)
+	}
+	bounds := img.Bounds()
+
+	// image for output
+	out := image.NewGray(bounds)
+
+	// Binarization
+	for v := bounds.Min.Y; v < bounds.Max.Y; v++ {
+		for h := bounds.Min.X; h < bounds.Max.X; h++ {
+			c := color.GrayModel.Convert(img.At(h, v))
+			gray, _ := c.(color.Gray)
+			// Binarize following threshold
+			if gray.Y > threshold {
+				gray.Y = 255
+			} else {
+				gray.Y = 0
+			}
+			out.Set(h, v, gray)
+		}
+	}
+
+	outfile, _ := os.Create("bin.png")
+	defer outfile.Close()
+	// write
+	png.Encode(outfile, out)
+}
+
 func main() {
 	x := 0
 	y := 0
@@ -164,4 +200,6 @@ func main() {
 	combine("shibadog.jpg", "goldeninu.jpg")
 
 	dyeGray("shibadog.jpg")
+
+	binarize("goldeninu.jpg")
 }
